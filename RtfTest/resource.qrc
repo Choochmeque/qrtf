@@ -1,0 +1,9 @@
+<RCC>
+    <qresource prefix="/">
+        <file>rtf/lineSeparator.rtf</file>
+        <file>rtf/annotationLibreOffice.rtf</file>
+        <file>rtf/annotationSpec.rtf</file>
+        <file>rtf/variousStyles.rtf</file>
+        <file>rtf/variousStylesGrouped.rtf</file>
+    </qresource>
+</RCC>
