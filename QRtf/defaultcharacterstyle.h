@@ -19,7 +19,13 @@ public:
 
     CharacterStyle *createFlattenedStyle();
 
-    bool operator ==(CharacterStyle *other) const;
+    bool operator ==(Style *other) const;
+
+    bool operator ==(const Style &other) const;
+
+    bool operator !=(Style *other) const;
+
+    bool operator !=(const Style &other) const;
 
     void setTo(Style *other);
 

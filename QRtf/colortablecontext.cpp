@@ -2,7 +2,10 @@
 #include "exception.h"
 
 ColorTableContext::ColorTableContext(ColorTable *table)
-    : m_table(table)
+    : m_table(table),
+      m_red(0),
+      m_green(0),
+      m_blue(0)
 {
 
 }

@@ -5,5 +5,34 @@
         <file>rtf/annotationSpec.rtf</file>
         <file>rtf/variousStyles.rtf</file>
         <file>rtf/variousStylesGrouped.rtf</file>
+        <file>rtf/variousStylesPages.rtf</file>
+        <file>rtf/testRawParse.rtf</file>
+        <file>rtf/testRawParse.xml</file>
+        <file>rtf/testSpecialChars.rtf</file>
+        <file>rtf/testSpecialChars.xml</file>
+        <file>rtf/testEncodingParse.rtf</file>
+        <file>rtf/testEncodingParse.xml</file>
+        <file>rtf/testGitHubIssue6.rtf</file>
+        <file>rtf/testGitHubIssue6.xml</file>
+        <file>rtf/testGreekEncoding.rtf</file>
+        <file>rtf/testGreekEncoding.xml</file>
+        <file>rtf/testHex.rtf</file>
+        <file>rtf/testHex.xml</file>
+        <file>rtf/testKoreanEncoding.rtf</file>
+        <file>rtf/testKoreanEncoding.xml</file>
+        <file>rtf/testMultiByteHex.rtf</file>
+        <file>rtf/testMultiByteHex.xml</file>
+        <file>rtf/testNegativeUnicode.rtf</file>
+        <file>rtf/testNegativeUnicode.xml</file>
+        <file>rtf/testStyles.rtf</file>
+        <file>rtf/testStyles.xml</file>
+        <file>rtf/testTurkishEncoding.rtf</file>
+        <file>rtf/testTurkishEncoding.xml</file>
+        <file>rtf/testUnicode.rtf</file>
+        <file>rtf/testUnicode.xml</file>
+        <file>rtf/testUpr.rtf</file>
+        <file>rtf/testUpr.xml</file>
+        <file>rtf/testSpecialCharsStandard.rtf</file>
+        <file>rtf/testSpecialCharsStandard.xml</file>
     </qresource>
 </RCC>

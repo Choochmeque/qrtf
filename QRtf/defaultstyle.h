@@ -16,9 +16,11 @@ public:
 
     QString name() const;
 
-    QSet<Property> getOverriddenProperties() const;
+    QSet<Property> overriddenProperties() const;
 
     bool operator ==(Style *other) const;
+
+    bool operator ==(const Style &other) const;
 
 protected:
     DefaultStyle();

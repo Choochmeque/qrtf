@@ -12,12 +12,20 @@ SOURCES += \
     tst_paragraphList.cpp \
     tst_paragraph.cpp \
     main.cpp \
-    tst_builderparse.cpp
+    tst_builderparse.cpp \
+    tst_rawrtfparser.cpp \
+    rtfdumper.cpp \
+    tst_standardrtfparser.cpp \
+    testutils.cpp
 
 HEADERS += \
     tst_paragraph.h \
     tst_paragraphlist.h \
-    tst_builderparse.h
+    tst_builderparse.h \
+    tst_rawrtfparser.h \
+    rtfdumper.h \
+    tst_standardrtfparser.h \
+    testutils.h
 
 RESOURCES += \
     resource.qrc

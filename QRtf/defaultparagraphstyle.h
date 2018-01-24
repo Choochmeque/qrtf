@@ -25,6 +25,12 @@ public:
 
     bool operator ==(Style *other) const;
 
+    bool operator ==(const Style &other) const;
+
+    bool operator !=(Style *other) const;
+
+    bool operator !=(const Style &other) const;
+
     void setTo(Style *other);
 
     void setAlignment(Alignment alignment);

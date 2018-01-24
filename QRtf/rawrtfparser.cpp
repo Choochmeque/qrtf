@@ -34,7 +34,7 @@ void RawRtfParser::parse(QIODevice *device, IRtfListener *listener)
     m_parsingHex = false;
 
     while (!m_source->atEnd()) {
-        m_source->read(&ch, 1);
+        m_source->getChar(&ch);
 
         if (m_groupDepth < 0) {
             throw ParseException();
@@ -56,6 +56,7 @@ void RawRtfParser::parse(QIODevice *device, IRtfListener *listener)
             case '\t': {
                 handleCharacterData();
                 listener->processCommand(Command::Tab, 0, false, false);
+                break;
             }
             case '\\': {
                 handleCommand();
@@ -96,20 +97,19 @@ void RawRtfParser::handleCommand()
     int parameterValue = 0;
     QByteArray commandText;
     QByteArray parameterText;
-    int ret;
+    bool ret;
 
     char ch;
-    ret = m_source->read(&ch, 1);
-    if (ret <= 0) {
+    ret = m_source->getChar(&ch);
+    if (!ret) {
         throw ParseException();
     }
 
     commandText.append(ch);
 
     // MY CHANGES:
-    if (ch == '\n') {
-        handleCharacterByte(ch);
-        return;
+    if ((ch == '\n') || (ch == '\r')) {
+        commandText = "par";
     }
 
     if (!QChar::isLetter(ch)) {
@@ -118,9 +118,9 @@ void RawRtfParser::handleCommand()
     }
 
     while (true) {
-        ret = m_source->read(&ch, 1);
+        ret = m_source->getChar(&ch);
 
-        if (ret <= 0 || !QChar::isLetter(ch)) {
+        if (!ret || !QChar::isLetter(ch)) {
             break;
         }
         commandText.append(ch);
@@ -129,7 +129,7 @@ void RawRtfParser::handleCommand()
         }
     }
 
-    if (ret <= 0) {
+    if (!ret) {
         throw ParseException();
     }
 
@@ -139,8 +139,8 @@ void RawRtfParser::handleCommand()
 
     if (ch == '-') {
         parameterIsNegative = true;
-        ret = m_source->read(&ch, 1);
-        if (ret <= 0) {
+        ret = m_source->getChar(&ch);
+        if (!ret) {
             throw ParseException();
         }
     }
@@ -148,8 +148,8 @@ void RawRtfParser::handleCommand()
         commandHasParameter = true;
         parameterText.append(ch);
         while (true) {
-            ret = m_source->read(&ch, 1);
-            if (ret <= 0 || !QChar::isDigit(ch)) {
+            ret = m_source->getChar(&ch);
+            if (!ret || !QChar::isDigit(ch)) {
                 break;
             }
             parameterText.append(ch);
@@ -194,7 +194,7 @@ void RawRtfParser::handleCommand(const QByteArray &commandBuffer, int parameter,
         }
     }
     else {
-        qWarning() << "Unknown command:" << commandBuffer;
+        //qWarning() << "Unknown command:" << commandBuffer;
     }
 }
 

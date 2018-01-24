@@ -2,13 +2,15 @@
 #include "rawrtfparser.h"
 #include "exception.h"
 #include "encoding.h"
+#include "defaulteventhandler.h"
+#include "stringevent.h"
+#include "binarybytesevent.h"
+#include "commandevent.h"
 
 StandardRtfParser::StandardRtfParser()
-    : m_listener(Q_NULLPTR),
-      m_skipBytes(0),
-      m_optional(false)
+    : m_skipBytes(0),
+      m_handler(Q_NULLPTR)
 {
-
 }
 
 StandardRtfParser::~StandardRtfParser()
@@ -18,19 +20,19 @@ StandardRtfParser::~StandardRtfParser()
 
 void StandardRtfParser::parse(QIODevice *source, IRtfListener *listener)
 {
-    m_listener = listener;
+    m_handler = new DefaultEventHandler(listener);
     RawRtfParser reader;
     reader.parse(source, this);
 }
 
 void StandardRtfParser::processGroupStart()
 {
-    m_listener->processGroupStart();
+    handleEvent(&m_groupStartEvent);
 }
 
 void StandardRtfParser::processGroupEnd()
 {
-    m_listener->processGroupEnd();
+    handleEvent(&m_groupEndEvent);
 }
 
 void StandardRtfParser::processCharacterBytes(const QByteArray &data)
@@ -38,7 +40,7 @@ void StandardRtfParser::processCharacterBytes(const QByteArray &data)
     if (!data.isEmpty()) {
         if (m_skipBytes < data.length()) {
             // TODO:
-            m_listener->processString(data.mid(m_skipBytes));
+            handleEvent(new StringEvent(data.mid(m_skipBytes)));
         }
         m_skipBytes = 0;
     }
@@ -46,22 +48,22 @@ void StandardRtfParser::processCharacterBytes(const QByteArray &data)
 
 void StandardRtfParser::processDocumentStart()
 {
-    m_listener->processDocumentStart();
+    handleEvent(&m_documentStartEvent);
 }
 
 void StandardRtfParser::processDocumentEnd()
 {
-    m_listener->processDocumentEnd();
+    handleEvent(&m_documentEndEvent);
 }
 
 void StandardRtfParser::processBinaryBytes(const QByteArray &data)
 {
-    m_listener->processBinaryBytes(data);
+    handleEvent(new BinaryBytesEvent(data));
 }
 
 void StandardRtfParser::processString(const QString &string)
 {
-    m_listener->processString(string);
+    handleEvent(new StringEvent(string));
 }
 
 void StandardRtfParser::processCommand(const Command &command, int parameter, bool hasParameter, bool optional)
@@ -72,15 +74,12 @@ void StandardRtfParser::processCommand(const Command &command, int parameter, bo
     else {
         bool optionalFlag = false;
 
-        // TODO:
-        if (command == Command::Optionalcommand) {
-            m_optional = true;
-            return;
-        }
-
-        if(m_optional == true) {
-            optionalFlag = true;
-            m_optional = false;
+        IParserEvent *lastEvent = m_handler->lastEvent();
+        if (lastEvent->type() == ParserEventType::COMMAND_EVENT) {
+            if (reinterpret_cast<CommandEvent*>(lastEvent)->command() == Command::Optionalcommand) {
+                m_handler->removeLastEvent();
+                optionalFlag = true;
+            }
         }
 
         if (command == Command::U) {
@@ -186,20 +185,29 @@ void StandardRtfParser::processEncoding(const Command &command, int parameter, b
 void StandardRtfParser::processUnicode(int parameter)
 {
     processCharacter(QChar(parameter));
-    m_skipBytes = 1;
+    m_skipBytes = m_parserState.unicodeAlternateSkipCount;
 }
 
 void StandardRtfParser::processUnicodeAlternateSkipCount(int parameter)
 {
-    m_skipBytes = parameter;
+    m_parserState.unicodeAlternateSkipCount = parameter;
 }
 
 void StandardRtfParser::processCharacter(const QString &ch)
 {
-    m_listener->processString(ch);
+    handleEvent(new StringEvent(ch));
 }
 
 void StandardRtfParser::handleCommand(const Command &command, int parameter, bool hasParameter, bool optional)
 {
-    m_listener->processCommand(command, parameter, hasParameter, optional);
+    handleEvent(new CommandEvent(command, parameter, hasParameter, optional));
+}
+
+void StandardRtfParser::handleEvent(IParserEvent *event)
+{
+    m_handler->handleEvent(event);
+    if (m_handler->isComplete()) {
+        // TODO:
+        //m_handler =
+    }
 }

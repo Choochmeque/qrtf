@@ -1,6 +1,7 @@
 #include "defaultcharacterstyle.h"
 #include "defaultcolor.h"
 #include "defaultfont.h"
+#include "exception.h"
 
 DefaultCharacterStyle::DefaultCharacterStyle()
     : m_parent(Q_NULLPTR),
@@ -51,8 +52,9 @@ void DefaultCharacterStyle::resetToDefaults()
     m_backgroundColor = DefaultColor::Black;
     m_foregroundColor = DefaultColor::White;
 
-    // TODO:
-    //m_overriddenProperties
+    m_overriddenProperties.clear();
+    m_overriddenProperties << ALIGNMENT << SPACING_TOP << SPACING_BOTTOM << FIRST_LINE_INDENT << LEFT_INDENT << RIGHT_INDENT << LINE_SPACING << TABS << FONT << FONT_SIZE
+            << BOLD << ITALIC << UNDERLINED << STRIKE_OUT << CAPS << BACKGROUND_COLOR << FOREGROUND_COLOR;
 }
 
 CharacterStyle *DefaultCharacterStyle::createDerivedStyle()
@@ -67,10 +69,70 @@ CharacterStyle *DefaultCharacterStyle::createFlattenedStyle()
     return style;
 }
 
-void DefaultCharacterStyle::setTo(Style *other)
+bool DefaultCharacterStyle::operator ==(Style *other) const
+{
+    if (other == this) {
+        return true;
+    }
+    if (!other) {
+        return false;
+    }
+    DefaultCharacterStyle *style = dynamic_cast<DefaultCharacterStyle*>(other);
+    if (!style) {
+        return false;
+    }
+
+    if (!DefaultStyle::operator ==(other)) {
+        return false;
+    }
+
+    return ((!m_parent && !style->parent()) || (*m_parent == style->parent())) &&
+            (m_font ? m_font == style->font() : style->font() == Q_NULLPTR) &&
+            (m_fontSize == style->fontSize()) &&
+            (m_bold == style->bold()) &&
+            (m_italic == style->italic()) &&
+            (m_underlineStyle == style->underlined()) &&
+            (m_strikeOut == style->strikeOut()) &&
+            (m_backgroundColor == style->backgroundColor()) &&
+            (m_foregroundColor == style->foregroundColor());
+}
+
+bool DefaultCharacterStyle::operator ==(const Style &other) const
 {
     // TODO:
-    CharacterStyle *style = reinterpret_cast<CharacterStyle*>(other);
+
+    return false;
+}
+
+bool DefaultCharacterStyle::operator !=(Style *other) const
+{
+    // TODO
+    return false;
+}
+
+bool DefaultCharacterStyle::operator !=(const Style &other) const
+{
+    // TODO:
+    return false;
+}
+
+void DefaultCharacterStyle::setTo(Style *other)
+{
+    if (other == this) {
+        return;
+    }
+    if (!other) {
+        throw ParseException();
+    }
+
+    CharacterStyle *style = dynamic_cast<CharacterStyle*>(other);
+    if (!style) {
+        throw ParseException();
+    }
+
+    copyFrom(style);
+    m_parent = style->parent();
+    m_overriddenProperties = style->overriddenProperties();
 }
 
 void DefaultCharacterStyle::setFont(Font *font)
@@ -90,12 +152,17 @@ Font *DefaultCharacterStyle::font() const
 
 void DefaultCharacterStyle::setFontSize(float value)
 {
-    // TODO:
+    m_fontSize = value;
+    m_overriddenProperties << Property::FONT_SIZE;
 }
 
 float DefaultCharacterStyle::fontSize() const
 {
-    // TODO:
+    if (m_overriddenProperties.contains(Property::FONT_SIZE)) {
+        return m_fontSize;
+    }
+
+    return parent()->fontSize();
 }
 
 void DefaultCharacterStyle::setBold(bool bold)
@@ -130,52 +197,77 @@ bool DefaultCharacterStyle::italic() const
 
 void DefaultCharacterStyle::setUnderlined(CharacterStyle::UnderlineStyle style)
 {
-    // TODO:
+    m_underlineStyle = style;
+    m_overriddenProperties << Property::UNDERLINED;
 }
 
 CharacterStyle::UnderlineStyle DefaultCharacterStyle::underlined() const
 {
-    // TODO:
+    if (m_overriddenProperties.contains(Property::UNDERLINED)) {
+        return m_underlineStyle;
+    }
+
+    return parent()->underlined();
 }
 
 void DefaultCharacterStyle::setStrikeOut(bool strikeOut)
 {
-    // TODO:
+    m_strikeOut = strikeOut;
+    m_overriddenProperties << Property::STRIKE_OUT;
 }
 
 bool DefaultCharacterStyle::strikeOut() const
 {
-    // TODO:
+    if (m_overriddenProperties.contains(Property::STRIKE_OUT)) {
+        return m_strikeOut;
+    }
+
+    return parent()->strikeOut();
 }
 
 void DefaultCharacterStyle::setCaps(bool caps)
 {
-    // TODO:
+    m_caps = caps;
+    m_overriddenProperties << Property::CAPS;
 }
 
 bool DefaultCharacterStyle::caps() const
 {
-    // TODO:
+    if (m_overriddenProperties.contains(Property::CAPS)) {
+        return m_caps;
+    }
+
+    return parent()->caps();
 }
 
 void DefaultCharacterStyle::setBackgroundColor(Color *color)
 {
-    // TODO:
+    m_backgroundColor = color;
+    m_overriddenProperties << Property::BACKGROUND_COLOR;
 }
 
 Color *DefaultCharacterStyle::backgroundColor() const
 {
-    // TODO:
+    if (m_overriddenProperties.contains(Property::BACKGROUND_COLOR)) {
+        return m_backgroundColor;
+    }
+
+    return parent()->backgroundColor();
 }
 
 void DefaultCharacterStyle::setForegroundColor(Color *color)
 {
-    // TODO:
+    m_foregroundColor = color;
+    m_overriddenProperties << Property::FOREGROUND_COLOR;
 }
 
 Color *DefaultCharacterStyle::foregroundColor() const
 {
-    // TODO:
+    if (m_overriddenProperties.contains(Property::FOREGROUND_COLOR)) {
+        return m_foregroundColor;
+    }
+
+    return parent()->foregroundColor();
 }
 
 void DefaultCharacterStyle::copyFrom(CharacterStyle *style)

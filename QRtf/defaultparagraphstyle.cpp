@@ -57,9 +57,44 @@ bool DefaultParagraphStyle::operator ==(Style *other) const
     if (other == this) {
         return true;
     }
+    if (!other) {
+        return false;
+    }
+
+    DefaultParagraphStyle *style = dynamic_cast<DefaultParagraphStyle*>(other);
+    if (!style) {
+        return false;
+    }
+
+    if (!DefaultCharacterStyle::operator ==(other)) {
+        return false;
+    }
+
+    return ((!m_parent && !style->parent()) || (*m_parent == style->parent())) &&
+            (m_alignment == style->alignment()) &&
+            (m_spacingTop == style->spacingTop()) &&
+            (m_spacingBottom == style->spacingBottom()) &&
+            (m_firstLineIndent == style->firstLineIndent()) &&
+            (m_leftIndent == style->leftIndent()) &&
+            (m_rightIndent == style->rightIndent()) &&
+            (m_lineSpacing == style->lineSpacing());
+}
+
+bool DefaultParagraphStyle::operator ==(const Style &other) const
+{
     // TODO:
 
     return false;
+}
+
+bool DefaultParagraphStyle::operator !=(Style *other) const
+{
+    return !this->operator ==(other);
+}
+
+bool DefaultParagraphStyle::operator !=(const Style &other) const
+{
+    return !this->operator !=(other);
 }
 
 void DefaultParagraphStyle::setTo(Style *other)

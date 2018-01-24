@@ -3,6 +3,12 @@
 
 #include "irtfparser.h"
 #include "irtflistener.h"
+#include "iparsereventhandler.h"
+#include "documentstartevent.h"
+#include "documentendevent.h"
+#include "groupstartevent.h"
+#include "groupendevent.h"
+#include "parserstate.h"
 
 class StandardRtfParser : public IRtfListener, public IRtfParser
 {
@@ -48,10 +54,16 @@ private:
 
     void handleCommand(const Command &command, int parameter, bool hasParameter, bool optional);
 
+    void handleEvent(IParserEvent *event);
+
 private:
     int m_skipBytes;
-    IRtfListener *m_listener;
-    bool m_optional;
+    IParserEventHandler *m_handler;
+    DocumentStartEvent m_documentStartEvent;
+    DocumentEndEvent m_documentEndEvent;
+    GroupStartEvent m_groupStartEvent;
+    GroupEndEvent m_groupEndEvent;
+    ParserState m_parserState;
 };
 
 #endif // STANDARDRTFPARSER_H

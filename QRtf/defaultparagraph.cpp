@@ -109,7 +109,7 @@ void DefaultParagraph::appendString(const QString &string, CharacterStyle *style
         Element *last = m_chunks.last();
         chunk = qobject_cast<Chunk*>(last);
     }
-    if (chunk == Q_NULLPTR || chunk->style() != style) {
+    if (chunk == Q_NULLPTR || *(chunk->style()) != style) {
         chunk = new DefaultChunk(style);
         append(chunk);
     }

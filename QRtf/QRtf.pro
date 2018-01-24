@@ -62,7 +62,15 @@ SOURCES += \
     annotationcontext.cpp \
     annotationidcontext.cpp \
     annotationauthorcontext.cpp \
-    timecontext.cpp
+    timecontext.cpp \
+    defaulteventhandler.cpp \
+    stringevent.cpp \
+    binarybytesevent.cpp \
+    commandevent.cpp \
+    documentendevent.cpp \
+    documentstartevent.cpp \
+    groupendevent.cpp \
+    groupstartevent.cpp
 
 HEADERS += \
         qrtfdocument.h \
@@ -134,7 +142,18 @@ HEADERS += \
     annotationcontext.h \
     annotationidcontext.h \
     annotationauthorcontext.h \
-    timecontext.h
+    timecontext.h \
+    iparseevent.h \
+    iparsereventhandler.h \
+    defaulteventhandler.h \
+    stringevent.h \
+    binarybytesevent.h \
+    commandevent.h \
+    documentendevent.h \
+    documentstartevent.h \
+    groupendevent.h \
+    groupstartevent.h \
+    parserstate.h
 
 unix {
     target.path = /usr/lib

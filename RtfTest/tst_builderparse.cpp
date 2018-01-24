@@ -145,9 +145,11 @@ void BuilderParseTest::test_annotations()
 void BuilderParseTest::test_styles()
 {
     QStringList docs;
-    docs << "variousStyles" << "variousStylesGrouped";
+    docs << "variousStyles" << "variousStylesPages" << "variousStylesGrouped";
 
     Q_FOREACH(const QString &fn, docs) {
+        qDebug() << "###############" << fn << "#################";
+
         DefaultDocument document;
         parseDocument(fn, &document, false);
 
@@ -188,10 +190,49 @@ void BuilderParseTest::test_styles()
                     QCOMPARE(chunk->text(), QString(" Normal.\n"));
                     QVERIFY(!chunk->style()->bold());
                     QVERIFY(!chunk->style()->italic());
-                break;
-                }
-                case 1:
                     break;
+                }
+                case 1: {
+                    int chunks = paragraph->countElements();
+                    QCOMPARE(chunks, 5);
+                    Chunk *chunk = reinterpret_cast<Chunk*>(paragraph->elementAt(0));
+                    QCOMPARE(chunk->text(), QString("Bigger Font (18). "));
+                    QCOMPARE(chunk->style()->fontSize(), 18.0f);
+                    QCOMPARE(chunk->style()->font()->name(), QString("Helvetica"));
+                    QCOMPARE(chunk->style()->underlined(), CharacterStyle::NONE);
+
+                    chunk = reinterpret_cast<Chunk*>(paragraph->elementAt(1));
+                    QCOMPARE(chunk->text(), QString("Underlined"));
+                    QCOMPARE(chunk->style()->fontSize(), 18.0f);
+                    QCOMPARE(chunk->style()->underlined(), CharacterStyle::SINGLE);
+
+                    chunk = reinterpret_cast<Chunk*>(paragraph->elementAt(2));
+                    QCOMPARE(chunk->text(), QString(" Normal size. "));
+                    QCOMPARE(chunk->style()->fontSize(), 12.0f);
+                    QCOMPARE(chunk->style()->underlined(), CharacterStyle::NONE);
+                    QCOMPARE(chunk->style()->foregroundColor()->red(), 0);
+                    QCOMPARE(chunk->style()->foregroundColor()->green(), 0);
+                    QCOMPARE(chunk->style()->foregroundColor()->blue(), 0);
+
+                    chunk = reinterpret_cast<Chunk*>(paragraph->elementAt(3));
+                    QCOMPARE(chunk->text(), QString("Red text. "));
+                    QCOMPARE(chunk->style()->foregroundColor()->red(), 217);
+                    QCOMPARE(chunk->style()->foregroundColor()->green(), 11);
+                    QCOMPARE(chunk->style()->foregroundColor()->blue(), 0);
+                    QCOMPARE(chunk->style()->backgroundColor()->red(), 255);
+                    QCOMPARE(chunk->style()->backgroundColor()->green(), 255);
+                    QCOMPARE(chunk->style()->backgroundColor()->blue(), 255);
+
+                    chunk = reinterpret_cast<Chunk*>(paragraph->elementAt(4));
+                    QCOMPARE(chunk->text(), QString("On yellow background.\n"));
+                    QCOMPARE(chunk->style()->foregroundColor()->red(), 217);
+                    QCOMPARE(chunk->style()->foregroundColor()->green(), 11);
+                    QCOMPARE(chunk->style()->foregroundColor()->blue(), 0);
+                    QCOMPARE(chunk->style()->backgroundColor()->red(), 255);
+                    QCOMPARE(chunk->style()->backgroundColor()->green(), 249);
+                    QCOMPARE(chunk->style()->backgroundColor()->blue(), 89);
+                    break;
+                }
             }
         }
     }

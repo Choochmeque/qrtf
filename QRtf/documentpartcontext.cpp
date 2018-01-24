@@ -6,7 +6,7 @@
 #include "annotationidcontext.h"
 #include "annotationauthorcontext.h"
 #include "nullcontext.h"
-
+#include "colortable.h"
 
 DocumentPartContext::DocumentPartContext(DocumentPart *part, Document *document)
     : m_documentPart(part),
@@ -118,9 +118,134 @@ void DocumentPartContext::processCommand(RtfContextStack *stack, const Command &
             m_style->setItalic(parameter != 0);
         }
     }
+    else if (command == Command::Caps) {
+        if (!hasParameter) {
+            m_style->setCaps(true);
+        }
+        else {
+            m_style->setCaps(parameter != 0);
+        }
+    }
+    else if ((command == Command::Strike) ||
+             (command == Command::Striked)) {
+        if (!hasParameter) {
+            m_style->setStrikeOut(true);
+        }
+        else {
+            m_style->setStrikeOut(parameter != 0);
+        }
+    }
+    else if (command == Command::Ul) {
+        setUnderlined(CharacterStyle::UnderlineStyle::SINGLE, hasParameter, parameter);
+    }
+    else if (command == Command::Uld) {
+        setUnderlined(CharacterStyle::UnderlineStyle::DOTTED, hasParameter, parameter);
+    }
+    else if (command == Command::Uldash) {
+        setUnderlined(CharacterStyle::UnderlineStyle::DASHED, hasParameter, parameter);
+    }
+    else if (command == Command::Uldashd) {
+        setUnderlined(CharacterStyle::UnderlineStyle::DASH_DOTTED, hasParameter, parameter);
+    }
+    else if (command == Command::Uldashdd) {
+        setUnderlined(CharacterStyle::UnderlineStyle::DASH_DOT_DOTTED, hasParameter, parameter);
+    }
+    else if (command == Command::Uldb) {
+        setUnderlined(CharacterStyle::UnderlineStyle::DOUBLE, hasParameter, parameter);
+    }
+    else if (command == Command::Ulhwave) {
+        setUnderlined(CharacterStyle::UnderlineStyle::HEAVY_WAVE, hasParameter, parameter);
+    }
+    else if (command == Command::Ulldash) {
+        setUnderlined(CharacterStyle::UnderlineStyle::LONG_DASHED, hasParameter, parameter);
+    }
+    else if (command == Command::Ulnone) {
+        m_style->setUnderlined(CharacterStyle::UnderlineStyle::NONE);
+    }
+    else if (command == Command::Ulth) {
+        setUnderlined(CharacterStyle::UnderlineStyle::THICK, hasParameter, parameter);
+    }
+    else if (command == Command::Ulthd) {
+        setUnderlined(CharacterStyle::UnderlineStyle::THICK_DOTTED, hasParameter, parameter);
+    }
+    else if (command == Command::Ulthdash) {
+        setUnderlined(CharacterStyle::UnderlineStyle::THICK_DASHED, hasParameter, parameter);
+    }
+    else if (command == Command::Ulthdashd) {
+        setUnderlined(CharacterStyle::UnderlineStyle::THICK_DASH_DOTTED, hasParameter, parameter);
+    }
+    else if (command == Command::Ulthdashdd) {
+        setUnderlined(CharacterStyle::UnderlineStyle::THICK_DASH_DOT_DOTTED, hasParameter, parameter);
+    }
+    else if (command == Command::Ulthldash) {
+        setUnderlined(CharacterStyle::UnderlineStyle::THICK_LONG_DASHED, hasParameter, parameter);
+    }
+    else if (command == Command::Ululdbwave) {
+        setUnderlined(CharacterStyle::UnderlineStyle::DOUBLE_WAVE, hasParameter, parameter);
+    }
+    else if (command == Command::Ulw) {
+        setUnderlined(CharacterStyle::UnderlineStyle::WORD, hasParameter, parameter);
+    }
+    else if (command == Command::Ulwave) {
+        setUnderlined(CharacterStyle::UnderlineStyle::WAVE, hasParameter, parameter);
+    }
+    else if (command == Command::Cb) {
+        m_style->setBackgroundColor(m_document->colorTable()->colorAt(parameter));
+    }
+    else if (command == Command::Cf) {
+        m_style->setForegroundColor(m_document->colorTable()->colorAt(parameter));
+    }
+    else if (command == Command::Qc) {
+        m_style->setAlignment(ParagraphStyle::Alignment::CENTER);
+    }
+    else if (command == Command::Qj) {
+        m_style->setAlignment(ParagraphStyle::Alignment::JUSTIFIED);
+    }
+    else if (command == Command::Ql) {
+        m_style->setAlignment(ParagraphStyle::Alignment::LEFT);
+    }
+    else if (command == Command::Qr) {
+        m_style->setAlignment(ParagraphStyle::Alignment::RIGHT);
+    }
+    else if (command == Command::Qd) {
+        m_style->setAlignment(ParagraphStyle::Alignment::DISTRIBUTED);
+    }
+    else if (command == Command::Fi) {
+        m_style->setFirstLineIndent(fromTwips(parameter));
+    }
+    else if (command == Command::Li) {
+        m_style->setLeftIndent(fromTwips(parameter));
+    }
+    else if (command == Command::Ri) {
+        m_style->setRightIndent(fromTwips(parameter));
+    }
+    else if (command == Command::Sb) {
+        m_style->setSpacingTop(fromTwips(parameter));
+    }
+    else if (command == Command::Sa) {
+        m_style->setSpacingBottom(fromTwips(parameter));
+    }
+    else if (command == Command::Sl) {
+        m_style->setLineSpacing(fromTwips(parameter));
+    }
     else {
         //qWarning() << command << "not handled!";
     }
+}
+
+void DocumentPartContext::setUnderlined(CharacterStyle::UnderlineStyle underline, bool hasParameter, int parameter)
+{
+    if ((!hasParameter) || parameter != 0) {
+        m_style->setUnderlined(underline);
+    }
+    else {
+        m_style->setUnderlined(CharacterStyle::UnderlineStyle::NONE);
+    }
+}
+
+float DocumentPartContext::fromTwips(int value)
+{
+    return (float) value / 20.0f;
 }
 
 void DocumentPartContext::annotationFinished()
@@ -135,5 +260,5 @@ QString DocumentPartContext::append(const QString &string, const QString &toAppe
 
 float DocumentPartContext::fromHalfPoints(int value)
 {
-    return (float) value / 2.0;
+    return (float) value / 2.0f;
 }

@@ -39,11 +39,17 @@ public:
 
     virtual Style *parent() const = 0;
 
-    virtual QSet<Property> getOverriddenProperties() const = 0;
+    virtual QSet<Property> overriddenProperties() const = 0;
 
     virtual void resetToDefaults() = 0;
 
     virtual bool operator ==(Style *other) const = 0;
+
+    virtual bool operator ==(const Style &other) const = 0;
+
+    virtual bool operator !=(Style *other) const = 0;
+
+    virtual bool operator !=(const Style &other) const = 0;
 
     virtual void setTo(Style *other) = 0;
 };

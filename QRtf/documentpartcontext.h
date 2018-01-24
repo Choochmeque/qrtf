@@ -2,6 +2,7 @@
 #define DOCUMENTPARTCONTEXT_H
 
 #include "abstractrtfcontext.h"
+#include "characterstyle.h"
 
 class DocumentPart;
 class Document;
@@ -32,6 +33,8 @@ public:
     virtual void processCommand(RtfContextStack *stack, const Command &command, int parameter, bool hasParameter, bool optional);
 
 private:
+    void setUnderlined(CharacterStyle::UnderlineStyle underline, bool hasParameter, int parameter);
+    float fromTwips(int value);
     float fromHalfPoints(int value);
     void annotationFinished();
     QString append(const QString &string, const QString &toAppend);
