@@ -1,4 +1,5 @@
 #include "defaultparagraphstyle.h"
+#include "exception.h"
 
 DefaultParagraphStyle::DefaultParagraphStyle()
     : m_parent(Q_NULLPTR)
@@ -94,7 +95,7 @@ bool DefaultParagraphStyle::operator !=(Style *other) const
 
 bool DefaultParagraphStyle::operator !=(const Style &other) const
 {
-    return !this->operator !=(other);
+    return !this->operator ==(other);
 }
 
 void DefaultParagraphStyle::setTo(Style *other)
@@ -102,8 +103,17 @@ void DefaultParagraphStyle::setTo(Style *other)
     if (other == this) {
         return;
     }
+    if (!other) {
+        throw ParseException();
+    }
+    ParagraphStyle *style = dynamic_cast<ParagraphStyle*>(other);
+    if (!style) {
+        throw ParseException();
+    }
 
-    // TODO:
+    copyFrom(style);
+    m_parent = style->parent();
+    m_overriddenProperties = style->overriddenProperties();
 }
 
 void DefaultParagraphStyle::setAlignment(ParagraphStyle::Alignment alignment)

@@ -21,7 +21,6 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-        qrtfdocument.cpp \
     rtfcontextstack.cpp \
     abstractrtfcontext.cpp \
     command.cpp \
@@ -70,12 +69,12 @@ SOURCES += \
     documentendevent.cpp \
     documentstartevent.cpp \
     groupendevent.cpp \
-    groupstartevent.cpp
+    groupstartevent.cpp \
+    uprhandler.cpp \
+    qrtfreader.cpp
 
 HEADERS += \
-        qrtfdocument.h \
         qrtf_global.h \ 
-    qrtfdocument_p.h \
     rtfcontext.h \
     rtfcontextstack.h \
     abstractrtfcontext.h \
@@ -153,7 +152,11 @@ HEADERS += \
     documentstartevent.h \
     groupendevent.h \
     groupstartevent.h \
-    parserstate.h
+    parserstate.h \
+    uprhandler.h \
+    fontcharset.h \
+    qrtfreader.h \
+    qrtfreader_p.h
 
 unix {
     target.path = /usr/lib

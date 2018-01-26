@@ -5,18 +5,19 @@
 #include <QTextDocument>
 #include <QIODevice>
 
-#include "qrtfdocument.h"
+#include "qrtfreader.h"
 
-class QRtfDocumentPrivate : public QObject
+class QRtfReaderPrivate : public QObject
 {
     Q_OBJECT
+
 public:
-    QRtfDocumentPrivate();
-    virtual ~QRtfDocumentPrivate();
+    QRtfReaderPrivate();
+    virtual ~QRtfReaderPrivate();
 
     void parse();
 
-    QRtfDocument *q;
+    QRtfReader *q;
     QTextDocument m_document;
     QIODevice *m_buffer;
 };

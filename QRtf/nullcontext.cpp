@@ -17,6 +17,10 @@ void NullContext::processGroupStart(RtfContextStack *stack)
 
 void NullContext::processGroupStart(RtfContextStack *stack, const Command &command, int parameter, bool hasParameter, bool optional)
 {
+    Q_UNUSED(command);
+    Q_UNUSED(parameter);
+    Q_UNUSED(hasParameter);
+    Q_UNUSED(optional);
     processGroupStart(stack);
 }
 
@@ -28,19 +32,27 @@ void NullContext::processGroupEnd(RtfContextStack *stack)
 void NullContext::processCharacterBytes(const QByteArray &data)
 {
     // Ignore
+    Q_UNUSED(data);
 }
 
 void NullContext::processBinaryBytes(const QByteArray &data)
 {
     // Ignore
+    Q_UNUSED(data);
 }
 
 void NullContext::processString(const QString &string)
 {
     // Ignore
+    Q_UNUSED(string);
 }
 
 void NullContext::processCommand(RtfContextStack *stack, const Command &command, int parameter, bool hasParameter, bool optional)
 {
     // Ignore
+    Q_UNUSED(stack);
+    Q_UNUSED(command);
+    Q_UNUSED(parameter);
+    Q_UNUSED(hasParameter);
+    Q_UNUSED(optional);
 }

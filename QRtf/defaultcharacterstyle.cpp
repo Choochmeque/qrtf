@@ -49,8 +49,8 @@ void DefaultCharacterStyle::resetToDefaults()
     m_underlineStyle = UnderlineStyle::NONE;
     m_strikeOut = false;
     m_caps = false;
-    m_backgroundColor = DefaultColor::Black;
-    m_foregroundColor = DefaultColor::White;
+    m_backgroundColor = DefaultColor::White;
+    m_foregroundColor = DefaultColor::Black;
 
     m_overriddenProperties.clear();
     m_overriddenProperties << ALIGNMENT << SPACING_TOP << SPACING_BOTTOM << FIRST_LINE_INDENT << LEFT_INDENT << RIGHT_INDENT << LINE_SPACING << TABS << FONT << FONT_SIZE
@@ -242,8 +242,10 @@ bool DefaultCharacterStyle::caps() const
 
 void DefaultCharacterStyle::setBackgroundColor(Color *color)
 {
-    m_backgroundColor = color;
-    m_overriddenProperties << Property::BACKGROUND_COLOR;
+    if (DefaultColor *defColor = dynamic_cast<DefaultColor*>(color)) {
+        m_backgroundColor = defColor;
+        m_overriddenProperties << Property::BACKGROUND_COLOR;
+    }
 }
 
 Color *DefaultCharacterStyle::backgroundColor() const
@@ -257,8 +259,10 @@ Color *DefaultCharacterStyle::backgroundColor() const
 
 void DefaultCharacterStyle::setForegroundColor(Color *color)
 {
-    m_foregroundColor = color;
-    m_overriddenProperties << Property::FOREGROUND_COLOR;
+    if (DefaultColor *defColor = dynamic_cast<DefaultColor*>(color)) {
+        m_foregroundColor = defColor;
+        m_overriddenProperties << Property::FOREGROUND_COLOR;
+    }
 }
 
 Color *DefaultCharacterStyle::foregroundColor() const

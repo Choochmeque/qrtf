@@ -75,14 +75,14 @@ void RawRtfParser::parse(QIODevice *device, IRtfListener *listener)
 void RawRtfParser::handleCharacterByte(char ch)
 {
     if (m_parsingHex) {
-        // TODO: review
-        int b = QByteArray(1, ch).toInt(Q_NULLPTR, 16);
-        int ret = m_source->read(&ch, 1);
-        if (ret <= 0) {
+        QByteArray b;
+        b.append(ch);
+        bool ret = m_source->getChar(&ch);
+        if (!ret) {
             throw ParseException();
         }
-        b += QByteArray(1, ch).toInt(Q_NULLPTR, 16);
-        m_buffer.append(b);
+        b.append(ch);
+        m_buffer.append(QByteArray::fromHex(b));
         m_parsingHex = false;
     }
     else {

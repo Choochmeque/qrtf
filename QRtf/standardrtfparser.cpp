@@ -2,10 +2,18 @@
 #include "rawrtfparser.h"
 #include "exception.h"
 #include "encoding.h"
+#include "fontcharset.h"
 #include "defaulteventhandler.h"
 #include "stringevent.h"
 #include "binarybytesevent.h"
 #include "commandevent.h"
+#include "documentstartevent.h"
+#include "documentendevent.h"
+#include "groupstartevent.h"
+#include "groupendevent.h"
+#include "uprhandler.h"
+
+#include <QTextCodec>
 
 StandardRtfParser::StandardRtfParser()
     : m_skipBytes(0),
@@ -27,20 +35,25 @@ void StandardRtfParser::parse(QIODevice *source, IRtfListener *listener)
 
 void StandardRtfParser::processGroupStart()
 {
-    handleEvent(&m_groupStartEvent);
+    handleEvent(new GroupStartEvent());
+    m_stack.push(m_parserState);
 }
 
 void StandardRtfParser::processGroupEnd()
 {
-    handleEvent(&m_groupEndEvent);
+    handleEvent(new GroupEndEvent());
+    m_parserState = m_stack.pop();
 }
 
 void StandardRtfParser::processCharacterBytes(const QByteArray &data)
 {
     if (!data.isEmpty()) {
         if (m_skipBytes < data.length()) {
-            // TODO:
-            handleEvent(new StringEvent(data.mid(m_skipBytes)));
+            QTextCodec *codec = QTextCodec::codecForName(currentEncoding().toUtf8());
+            if (!codec) {
+                throw ParseException();
+            }
+            handleEvent(new StringEvent(codec->toUnicode(data.mid(m_skipBytes))));
         }
         m_skipBytes = 0;
     }
@@ -48,12 +61,12 @@ void StandardRtfParser::processCharacterBytes(const QByteArray &data)
 
 void StandardRtfParser::processDocumentStart()
 {
-    handleEvent(&m_documentStartEvent);
+    handleEvent(new DocumentStartEvent());
 }
 
 void StandardRtfParser::processDocumentEnd()
 {
-    handleEvent(&m_documentEndEvent);
+    handleEvent(new DocumentEndEvent());
 }
 
 void StandardRtfParser::processBinaryBytes(const QByteArray &data)
@@ -69,7 +82,7 @@ void StandardRtfParser::processString(const QString &string)
 void StandardRtfParser::processCommand(const Command &command, int parameter, bool hasParameter, bool optional)
 {
     if (command.commandType() == CommandType::Encoding) {
-        processEncoding(command, hasParameter, parameter);
+        processEncoding(command, parameter, hasParameter);
     }
     else {
         bool optionalFlag = false;
@@ -89,8 +102,7 @@ void StandardRtfParser::processCommand(const Command &command, int parameter, bo
             processUnicodeAlternateSkipCount(parameter);
         }
         else if (command == Command::Upr) {
-            // TODO
-            qWarning() << "TODO: Handle Upr command";
+            processUpr(new CommandEvent(command, parameter, hasParameter, optionalFlag));
         }
         else if (command == Command::Emdash) {
             processCharacter("\u2014");
@@ -145,14 +157,23 @@ void StandardRtfParser::processCommand(const Command &command, int parameter, bo
     }
 }
 
+QString StandardRtfParser::currentEncoding() const
+{
+    return m_parserState.currentFontEncoding.isEmpty() ? m_parserState.currentEncoding : m_parserState.currentFontEncoding;
+}
+
 void StandardRtfParser::processFont(int parameter)
 {
-
+    m_parserState.currentFont = parameter;
+    m_parserState.currentFontEncoding = m_fontEncodings.value(parameter);
 }
 
 void StandardRtfParser::processFontCharset(int parameter)
 {
-
+    QString charset = FontCharset::charset(parameter);
+    if (!charset.isEmpty()) {
+        m_fontEncodings.insert(m_parserState.currentFont, Encoding::LocaleId.value(charset));
+    }
 }
 
 void StandardRtfParser::processEncoding(const Command &command, int parameter, bool hasParameter)
@@ -171,19 +192,22 @@ void StandardRtfParser::processEncoding(const Command &command, int parameter, b
         encoding = Encoding::MAC_ENCODING;
     }
     else if (command == Command::Ansicpg) {
-        // TODO:
-        encoding = "test";
+        encoding = hasParameter ? Encoding::LocaleId.value(QString::number(parameter)) : "";
     }
 
     if (encoding.isEmpty()) {
         throw ParseException();
     }
 
-
+    m_parserState.currentEncoding = encoding;
 }
 
 void StandardRtfParser::processUnicode(int parameter)
 {
+    if (parameter < 0) {
+        parameter += 65536;
+    }
+
     processCharacter(QChar(parameter));
     m_skipBytes = m_parserState.unicodeAlternateSkipCount;
 }
@@ -191,6 +215,15 @@ void StandardRtfParser::processUnicode(int parameter)
 void StandardRtfParser::processUnicodeAlternateSkipCount(int parameter)
 {
     m_parserState.unicodeAlternateSkipCount = parameter;
+}
+
+void StandardRtfParser::processUpr(IParserEvent *command)
+{
+    UprHandler *uprHandler = new UprHandler(m_handler);
+    uprHandler->handleEvent(command);
+
+    m_handlerStack.push(m_handler);
+    m_handler = uprHandler;
 }
 
 void StandardRtfParser::processCharacter(const QString &ch)
@@ -207,7 +240,7 @@ void StandardRtfParser::handleEvent(IParserEvent *event)
 {
     m_handler->handleEvent(event);
     if (m_handler->isComplete()) {
-        // TODO:
-        //m_handler =
+        delete m_handler;
+        m_handler = m_handlerStack.pop();
     }
 }

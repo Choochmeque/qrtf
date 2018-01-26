@@ -1,4 +1,6 @@
 #include "fontcontext.h"
+#include "rtfcontextstack.h"
+#include "nullcontext.h"
 
 FontContext::FontContext(FontTable *table)
     : m_fontTable(table),
@@ -21,6 +23,16 @@ FontContext::FontContext(int id, FontTable *table)
 FontContext::~FontContext()
 {
 
+}
+
+void FontContext::processGroupStart(RtfContextStack *stack, const Command &command, int parameter, bool hasParameter, bool optional)
+{
+    if (optional) {
+        stack->pushContext(new NullContext());
+    }
+    else {
+        AbstractRtfContext::processGroupStart(stack, command, parameter, hasParameter, optional);
+    }
 }
 
 void FontContext::processGroupEnd(RtfContextStack *stack)

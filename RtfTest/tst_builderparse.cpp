@@ -35,6 +35,55 @@ BuilderParseTest::BuilderParseTest()
         f1.write(line);
     }
     */
+    /*
+    QFile f0("/Users/vpankratov/encodings.txt");
+    QFile f1("/Users/vpankratov/encodings_.txt");
+
+    f0.open(QIODevice::ReadOnly);
+    f1.open(QIODevice::WriteOnly | QIODevice::Truncate);
+
+    while(!f0.atEnd()) {
+        QByteArray line = f0.readLine();
+        line = line.trimmed();
+        if (line.isEmpty()) {
+            continue;
+        }
+
+        QString r("LOCALEID_MAPPING.put");
+        line.remove(line.indexOf(r), r.length());
+        line.replace("(", "{");
+        line.replace(")", "}");
+        line.replace(";", ",");
+        line = line.trimmed();
+        line.append('\n');
+        f1.write(line);
+    }
+    */
+    /*
+    QFile f0("/Users/vpankratov/font.txt");
+    QFile f1("/Users/vpankratov/font_.txt");
+
+    f0.open(QIODevice::ReadOnly);
+    f1.open(QIODevice::WriteOnly | QIODevice::Truncate);
+
+    while(!f0.atEnd()) {
+        QByteArray line = f0.readLine();
+        line = line.trimmed();
+        if (line.isEmpty()) {
+            continue;
+        }
+
+        QString r("MAPPING");
+        line.remove(line.indexOf(r), r.length());
+        line.replace("[", "{");
+        line.replace("] =", ",");
+        line.replace(";", "},");
+        line.replace("null", "\"\"");
+        line = line.trimmed();
+        line.append('\n');
+        f1.write(line);
+    }
+    */
 }
 
 BuilderParseTest::~BuilderParseTest()
@@ -145,7 +194,7 @@ void BuilderParseTest::test_annotations()
 void BuilderParseTest::test_styles()
 {
     QStringList docs;
-    docs << "variousStyles" << "variousStylesPages" << "variousStylesGrouped";
+    docs << "variousStyles" /* << "variousStylesPages" */ << "variousStylesGrouped";
 
     Q_FOREACH(const QString &fn, docs) {
         qDebug() << "###############" << fn << "#################";
@@ -231,6 +280,10 @@ void BuilderParseTest::test_styles()
                     QCOMPARE(chunk->style()->backgroundColor()->red(), 255);
                     QCOMPARE(chunk->style()->backgroundColor()->green(), 249);
                     QCOMPARE(chunk->style()->backgroundColor()->blue(), 89);
+                    break;
+                }
+                case 2: {
+                    //QCOMPARE(paragraph->style()->alignment(), ParagraphStyle::CENTER);
                     break;
                 }
             }

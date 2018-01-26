@@ -64,7 +64,7 @@ void DefaultEventHandler::flushEvents()
 {
     Q_FOREACH(IParserEvent *event, m_events) {
         event->fire(m_listener);
-        //delete event;
+        delete event;
     }
 
     m_events.clear();

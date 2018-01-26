@@ -19,7 +19,7 @@ RtfContext *RtfContextStack::context() const
 
 void RtfContextStack::pushContext(RtfContext *context)
 {
-    m_stack.push(context);
+    m_stack.push(m_currentContext);
     m_currentContext = context;
 }
 
@@ -31,10 +31,6 @@ void RtfContextStack::popContext()
     }
 
     m_currentContext = m_stack.pop();
-    // MY CHANGES
-    if(!m_stack.isEmpty()) {
-        m_currentContext = m_stack.top();
-    }
 }
 
 void RtfContextStack::handleError(const QString &error)

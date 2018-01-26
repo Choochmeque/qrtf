@@ -11,6 +11,8 @@ public:
     FontContext(int id, FontTable *table);
     ~FontContext();
 
+    void processGroupStart(RtfContextStack *stack, const Command &command, int parameter, bool hasParameter, bool optional);
+
     void processGroupEnd(RtfContextStack *stack);
 
     void processString(const QString &string);

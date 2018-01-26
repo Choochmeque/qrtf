@@ -4,11 +4,9 @@
 #include "irtfparser.h"
 #include "irtflistener.h"
 #include "iparsereventhandler.h"
-#include "documentstartevent.h"
-#include "documentendevent.h"
-#include "groupstartevent.h"
-#include "groupendevent.h"
 #include "parserstate.h"
+
+#include <QStack>
 
 class StandardRtfParser : public IRtfListener, public IRtfParser
 {
@@ -50,6 +48,8 @@ private:
 
     void processUnicodeAlternateSkipCount(int parameter);
 
+    void processUpr(IParserEvent *command);
+
     void processCharacter(const QString &ch);
 
     void handleCommand(const Command &command, int parameter, bool hasParameter, bool optional);
@@ -58,12 +58,11 @@ private:
 
 private:
     int m_skipBytes;
+    QHash<int, QString> m_fontEncodings;
     IParserEventHandler *m_handler;
-    DocumentStartEvent m_documentStartEvent;
-    DocumentEndEvent m_documentEndEvent;
-    GroupStartEvent m_groupStartEvent;
-    GroupEndEvent m_groupEndEvent;
+    QStack<IParserEventHandler*> m_handlerStack;
     ParserState m_parserState;
+    QStack<ParserState> m_stack;
 };
 
 #endif // STANDARDRTFPARSER_H

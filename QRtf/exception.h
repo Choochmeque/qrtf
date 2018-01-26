@@ -6,6 +6,8 @@
 class ParseException : public QException
 {
 public:
+    ParseException() {}
+
     void raise() const { throw *this; }
     ParseException *clone() const { return new ParseException(*this); }
 };
