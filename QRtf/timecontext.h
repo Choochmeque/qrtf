@@ -27,6 +27,12 @@ public:
 private:
     AnnotationContext *m_parent;
     QDateTime m_dateTime;
+    int m_day;
+    int m_month;
+    int m_year;
+    int m_hour;
+    int m_minute;
+    int m_second;
 };
 
 #endif // TIMECONTEXT_H

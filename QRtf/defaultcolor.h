@@ -16,6 +16,8 @@ public:
 
     int blue() const;
 
+    QColor color() const;
+
     static DefaultColor *Black;
     static DefaultColor *White;
 

@@ -11,7 +11,7 @@ DefaultFontTable::~DefaultFontTable()
 
 void DefaultFontTable::addFont(int id, QString name, QString alternativeName, QString fileName, FontTable::FontFamily fontFamily)
 {
-    m_fonts[id] = new DefaultFont(name);
+    m_fonts.insert(id, new DefaultFont(name));
 }
 
 int DefaultFontTable::countFonts() const

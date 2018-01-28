@@ -33,53 +33,57 @@ void QRtfReaderPrivate::parse()
         Section *section = document.sectionAt(i);
         for (int j = 0; j < section->countParagraphs(); j++) {
             Paragraph *paragraph = section->paragraphAt(j);
-            QTextBlockFormat blockFormat;
-            blockFormat.setTextIndent(paragraph->style()->firstLineIndent());
-            blockFormat.setLineHeight(paragraph->style()->lineSpacing(), QTextBlockFormat::SingleHeight);
-            switch (paragraph->style()->alignment()) {
-                case ParagraphStyle::LEFT: blockFormat.setAlignment(Qt::AlignLeft); break;
-                case ParagraphStyle::RIGHT: blockFormat.setAlignment(Qt::AlignRight); break;
-                case ParagraphStyle::CENTER: blockFormat.setAlignment(Qt::AlignHCenter); break;
-                case ParagraphStyle::JUSTIFIED: blockFormat.setAlignment(Qt::AlignJustify); break;
-                //case ParagraphStyle::DISTRIBUTED: blockFormat.setAlignment(); break;
-            }
+            QTextBlockFormat blockFormat = styleToTextBlockFormat(paragraph->style());
+            QTextCharFormat charFormat = styleToTextCharFormat(paragraph->style());
 
-            cursor.insertBlock(blockFormat);
+            cursor.insertBlock(blockFormat, charFormat);
             for (int k = 0; k < paragraph->countElements(); k++) {
                 Element *element = paragraph->elementAt(k);
                 if (Chunk *chunk = dynamic_cast<Chunk*>(element)) {
-                    QFont f(chunk->style()->font()->name());
-                    f.setBold(chunk->style()->bold());
-                    f.setItalic(chunk->style()->italic());
-                    f.setPointSizeF(chunk->style()->fontSize());
-                    f.setUnderline(chunk->style()->underlined() > CharacterStyle::NONE);
-                    QTextCharFormat charFormat;
-                    charFormat.setFont(f);
-                    //charFormat.setun
-                    Color *backgroundColor = chunk->style()->backgroundColor();
-                    charFormat.setBackground(QColor(qRgb(backgroundColor->red(), backgroundColor->green(), backgroundColor->blue())));
-                    Color *foregroundColor = chunk->style()->foregroundColor();
-                    charFormat.setForeground(QColor(qRgb(foregroundColor->red(), foregroundColor->green(), foregroundColor->blue())));
-                    if (ParagraphStyle *paragraphStyle = dynamic_cast<ParagraphStyle*>(chunk->style())) {
-                        //cursor.beginEditBlock();
-                        blockFormat = cursor.blockFormat();
-                        switch (paragraphStyle->alignment()) {
-                            case ParagraphStyle::LEFT: blockFormat.setAlignment(Qt::AlignLeft); break;
-                            case ParagraphStyle::RIGHT: blockFormat.setAlignment(Qt::AlignRight); break;
-                            case ParagraphStyle::CENTER: blockFormat.setAlignment(Qt::AlignHCenter); break;
-                            case ParagraphStyle::JUSTIFIED: blockFormat.setAlignment(Qt::AlignJustify); break;
-                            //case ParagraphStyle::DISTRIBUTED: blockFormat.setAlignment(); break;
-                        }
-                        blockFormat.setTextIndent(paragraph->style()->firstLineIndent());
-                        blockFormat.setLineHeight(paragraph->style()->lineSpacing(), QTextBlockFormat::SingleHeight);
-                        cursor.setBlockFormat(blockFormat);
-                        //cursor.endEditBlock();
-                    }
+                    QTextCharFormat charFormat = styleToTextCharFormat(chunk->style());
+                    QTextBlockFormat blockFormat = styleToTextBlockFormat(chunk->style());
+                    cursor.setBlockFormat(blockFormat);
                     cursor.insertText(chunk->text(), charFormat);
                 }
             }
         }
     }
+}
+
+QTextBlockFormat QRtfReaderPrivate::styleToTextBlockFormat(Style *style) const
+{
+    QTextBlockFormat blockFormat;
+    if (ParagraphStyle *paragraphStyle = dynamic_cast<ParagraphStyle*>(style)) {
+        blockFormat.setTextIndent(paragraphStyle->firstLineIndent());
+        blockFormat.setLineHeight(paragraphStyle->lineSpacing(), QTextBlockFormat::SingleHeight);
+        switch (paragraphStyle->alignment()) {
+            case ParagraphStyle::LEFT: blockFormat.setAlignment(Qt::AlignLeft); break;
+            case ParagraphStyle::RIGHT: blockFormat.setAlignment(Qt::AlignRight); break;
+            case ParagraphStyle::CENTER: blockFormat.setAlignment(Qt::AlignHCenter); break;
+            case ParagraphStyle::JUSTIFIED: blockFormat.setAlignment(Qt::AlignJustify); break;
+            //case ParagraphStyle::DISTRIBUTED: blockFormat.setAlignment(); break;
+        }
+    }
+    return blockFormat;
+}
+
+QTextCharFormat QRtfReaderPrivate::styleToTextCharFormat(Style *style) const
+{
+    QTextCharFormat charFormat;
+    if (CharacterStyle *characterStyle = dynamic_cast<CharacterStyle*>(style)) {
+        QFont f(characterStyle->font()->name());
+        f.setBold(characterStyle->bold());
+        f.setItalic(characterStyle->italic());
+        f.setPointSizeF(characterStyle->fontSize());
+        f.setUnderline(characterStyle->underlined() > CharacterStyle::NONE);
+        charFormat.setFont(f);
+        //charFormat.setun
+        Color *backgroundColor = characterStyle->backgroundColor();
+        charFormat.setBackground(backgroundColor->color());
+        Color *foregroundColor = characterStyle->foregroundColor();
+        charFormat.setForeground(foregroundColor->color());
+    }
+    return charFormat;
 }
 
 

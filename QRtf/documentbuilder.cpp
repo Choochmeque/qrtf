@@ -15,7 +15,7 @@ DocumentBuilder::DocumentBuilder(Document *document)
 
 DocumentBuilder::~DocumentBuilder()
 {
-
+    delete m_stack;
 }
 
 void DocumentBuilder::setDebugEvents(bool debug)
@@ -35,6 +35,11 @@ void DocumentBuilder::processDocumentEnd()
 
 void DocumentBuilder::processGroupStart()
 {
+    if (m_atGroupStart) {
+        // Handle double group start "{{"
+        handleDelayedGroupStart("");
+    }
+
     m_atGroupStart = true;
 }
 

@@ -7,6 +7,8 @@
 #include "chunk.h"
 #include "annotation.h"
 
+#include "rtfdumper.h"
+
 #include "tst_builderparse.h"
 
 BuilderParseTest::BuilderParseTest()
@@ -82,6 +84,22 @@ BuilderParseTest::BuilderParseTest()
         line = line.trimmed();
         line.append('\n');
         f1.write(line);
+    }
+    */
+    /*
+    QFile i("/Users/vpankratov/Downloads/RTF-Spec-1.7.rtf");
+    i.open(QIODevice::ReadOnly);
+
+    QFile o("/Users/vpankratov/RTF-Spec-1.7.xml");
+    o.open(QIODevice::ReadWrite);
+
+    try {
+        StandardRtfParser parser;
+        RtfDumper dumper(&o);
+        parser.parse(&i, &dumper);
+    }
+    catch(...) {
+        
     }
     */
 }

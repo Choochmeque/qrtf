@@ -3,9 +3,12 @@
 
 #include <QObject>
 #include <QTextDocument>
+#include <QTextCharFormat>
 #include <QIODevice>
 
 #include "qrtfreader.h"
+
+class Style;
 
 class QRtfReaderPrivate : public QObject
 {
@@ -16,6 +19,9 @@ public:
     virtual ~QRtfReaderPrivate();
 
     void parse();
+
+    QTextBlockFormat styleToTextBlockFormat(Style *style) const;
+    QTextCharFormat styleToTextCharFormat(Style *style) const;
 
     QRtfReader *q;
     QTextDocument m_document;

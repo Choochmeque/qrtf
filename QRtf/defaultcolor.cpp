@@ -38,3 +38,8 @@ int DefaultColor::blue() const
 {
     return m_blue;
 }
+
+QColor DefaultColor::color() const
+{
+    return QColor(m_red, m_green, m_blue);
+}

@@ -7,7 +7,7 @@
 class FontContext : public AbstractRtfContext
 {
 public:
-    FontContext(FontTable *table);
+    explicit FontContext(FontTable *table);
     FontContext(int id, FontTable *table);
     ~FontContext();
 
